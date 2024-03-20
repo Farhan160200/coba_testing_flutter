@@ -1,4 +1,4 @@
-import 'package:coba_testing_flutter/akun_view_model.dart';
+import 'package:coba_testing_flutter/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,39 +8,94 @@ class AkunFragment extends StatefulWidget {
 }
 
 class _AkunFragmentState extends State<AkunFragment> {
-  late AkunViewModel _akunViewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _akunViewModel = context.read<AkunViewModel>();
-    _akunViewModel.fetchData(_akunViewModel.token); // Memanggil fetchData dengan token yang telah disimpan di AkunViewModel
-    print('Fetching user data...');
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
+    if (userProvider.isLoggedIn()) {
+      return _buildUserDataView(userProvider);
+    } else {
+      return _buildLoginView(userProvider);
+    }
+  }
+
+  Widget _buildUserDataView(UserProvider userProvider) {
+    final userData = userProvider.userData;
     return Scaffold(
       appBar: AppBar(
         title: Text('Akun'),
       ),
       body: Center(
-        child: Consumer<AkunViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return CircularProgressIndicator();
-            } else {
-              final userData = viewModel.userData;
-              return userData != null ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Email: ${userData.email}'),
-                  Text('Name: ${userData.name}'),
-                  Text('UserName: ${userData.username}')
-                ],
-              ) : Text('User data not available');
-            }
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Menampilkan gambar pengguna dengan ukuran 300x300 piksel dan sudut bulat 20
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                'https://sobatps.devel-filkomub.site/img/${userData!.image}',
+                width: 300,
+                height: 300,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return CircularProgressIndicator();
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error); // Tampilkan ikon error jika gagal memuat gambar
+                },
+              ),
+            ),
+            SizedBox(height: 16), // Berikan sedikit ruang antara gambar dan teks
+            Text('Name: ${userData.name}'),
+            Text('Email: ${userData.email}'),
+            Text('Username: ${userData.username}'),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                userProvider.logout();
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginView(UserProvider userProvider) {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                final email = emailController.text;
+                final password = passwordController.text;
+                userProvider.login(email, password);
+              },
+              child: Text('Login'),
+            ),
+          ],
         ),
       ),
     );
