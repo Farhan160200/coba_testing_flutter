@@ -34,3 +34,4 @@ class ResponseUserData {
     'image': image, // Menambahkan image ke dalam JSON
   };
 }
+

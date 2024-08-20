@@ -1,10 +1,15 @@
 import 'package:coba_testing_flutter/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'movie_page.dart'; // Import MoviePage
 
 class AkunFragment extends StatefulWidget {
   @override
   _AkunFragmentState createState() => _AkunFragmentState();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
 }
 
 class _AkunFragmentState extends State<AkunFragment> {
@@ -43,15 +48,28 @@ class _AkunFragmentState extends State<AkunFragment> {
                   return CircularProgressIndicator();
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.error); // Tampilkan ikon error jika gagal memuat gambar
+                  return Icon(Icons
+                      .error); // Tampilkan ikon error jika gagal memuat gambar
                 },
               ),
             ),
-            SizedBox(height: 16), // Berikan sedikit ruang antara gambar dan teks
+            SizedBox(height: 16),
+            // Berikan sedikit ruang antara gambar dan teks
             Text('Name: ${userData.name}'),
             Text('Email: ${userData.email}'),
             Text('Username: ${userData.username}'),
             SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>
+                      MoviePage()), // Pindah ke halaman MoviePage saat tombol ditekan
+                );
+              },
+              child: Text(
+                  'Lihat Film'), // Ubah teks tombol menjadi 'Lihat Film'
+            ),
             ElevatedButton(
               onPressed: () {
                 userProvider.logout();
@@ -70,20 +88,57 @@ class _AkunFragmentState extends State<AkunFragment> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('Login',
+            style: TextStyle(color: Colors.black, fontSize: 50, fontStyle: FontStyle.italic)
+        ),
+
       ),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Username',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.blueAccent
+              ),
+            ),
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                hintText: 'Enter your username',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Password',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.blueAccent,
+              ),
             ),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                hintText: 'Enter your password',
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.remove_red_eye),
+                ),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 16.0),
@@ -93,7 +148,32 @@ class _AkunFragmentState extends State<AkunFragment> {
                 final password = passwordController.text;
                 userProvider.login(email, password);
               },
-              child: Text('Login'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              child: Text(
+                'Sign In',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Buat Coba-Coba Ajah',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
